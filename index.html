@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b4f45">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Cuaderno de campo</title>
@@ -15,7 +15,7 @@
   --prim: #0b4f45; --prim-texto: #ffffff; --prim-suave: #dcefe9;
   --peligro: #a3161b; --aviso: #8a4b00; --ok: #0a6b3a;
   --f0: #1747b5; --f0s: #e2e9fb; --f1: #8a4b00; --f1s: #fdecd3;
-  --f2: #5b21b6; --f2s: #ece4fb; --f3: #0a6b3a; --f3s: #dcf3e5;
+  --f2: #5b21b6; --f2s: #ece4fb; --f3: #0a6b3a; --f3s: #dcf3e5; --f4: #b3141a; --f4s: #fde2e2;
   --sombra: 0 1px 2px rgba(0,0,0,.12);
   color-scheme: light;
 }
@@ -24,7 +24,7 @@
   --prim: #4cc2a8; --prim-texto: #04201b; --prim-suave: #183a33;
   --peligro: #ff8a8a; --aviso: #ffc266; --ok: #6be3a0;
   --f0: #9db8ff; --f0s: #1d2a4a; --f1: #ffc266; --f1s: #3d2b10;
-  --f2: #c9a8ff; --f2s: #2f2148; --f3: #6be3a0; --f3s: #143524;
+  --f2: #c9a8ff; --f2s: #2f2148; --f3: #6be3a0; --f3s: #143524; --f4: #ff8a8a; --f4s: #4a1618;
   --sombra: none;
   color-scheme: dark;
 }
@@ -34,7 +34,7 @@
     --prim: #4cc2a8; --prim-texto: #04201b; --prim-suave: #183a33;
     --peligro: #ff8a8a; --aviso: #ffc266; --ok: #6be3a0;
     --f0: #9db8ff; --f0s: #1d2a4a; --f1: #ffc266; --f1s: #3d2b10;
-    --f2: #c9a8ff; --f2s: #2f2148; --f3: #6be3a0; --f3s: #143524;
+    --f2: #c9a8ff; --f2s: #2f2148; --f3: #6be3a0; --f3s: #143524; --f4: #ff8a8a; --f4s: #4a1618;
     --sombra: none;
     color-scheme: dark;
   }
@@ -57,11 +57,27 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
   display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
   max-width: 680px; margin: 0 auto;
 }
-.cabecera h1 { font-size: 1.35rem; margin: 0; flex: 1; font-weight: 800; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cabecera h1 { font-size: 1rem; line-height: 1.12; margin: 0; flex: 1; min-width: 0; font-weight: 800; letter-spacing: -.01em; }
 .icono-btn {
-  width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center;
+  width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; position: relative;
   background: var(--tarjeta); border: 1.5px solid var(--linea); flex: none;
 }
+#chipSync svg { width: 32px; height: 32px; }
+#chipSync[data-estado="ok"] { color: var(--f0); }
+#chipSync[data-estado="sync"] { color: var(--f0); opacity: .65; }
+#chipSync[data-estado="ia"] { color: var(--f2); }
+#chipSync[data-estado="pend"] { color: var(--aviso); border-color: var(--aviso); }
+#chipSync[data-estado="err"] { color: var(--peligro); border-color: var(--peligro); }
+#chipSync[data-estado="local"] { color: var(--suave); }
+.contador { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--aviso); color: #fff; font-size: .72rem; font-weight: 800; display: grid; place-items: center; }
+.icono-btn.sel { background: var(--prim); color: var(--prim-texto); border-color: var(--prim); }
+.barra-buscar { display: flex; gap: 8px; margin: 2px 0 10px; }
+.barra-buscar .buscar { flex: 1; margin: 0; }
+.mic-peq { width: 56px; height: 56px; border-radius: 14px; flex: none; display: grid; place-items: center; border: 2px solid var(--prim); color: var(--prim); background: var(--tarjeta); }
+.mic-peq svg { width: 28px; height: 28px; }
+.mic-peq.activo { background: #c0161d; border-color: #c0161d; color: #fff; }
+.btn-nuevo2 { min-height: 54px; margin: 2px 0 12px; font-size: 1.1rem; }
+.sep { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); margin: 14px 4px 2px; }
 .icono-btn svg { width: 28px; height: 28px; }
 .chip {
   min-height: 44px; padding: 0 12px; border-radius: 22px; font-size: .85rem; font-weight: 700;
@@ -82,8 +98,10 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 .btn.prim { background: var(--prim); color: var(--prim-texto); border-color: var(--prim); }
 .btn.peligro { color: var(--peligro); border-color: var(--peligro); }
 .btn:active, .icono-btn:active, .cab:active, .campo:active, .nota:active, .fase-btn:active { filter: brightness(.92); }
-.btn-nuevo { min-height: 76px; font-size: 1.35rem; border-radius: 18px; margin: 4px 0 14px; box-shadow: var(--sombra); }
-.btn-nuevo svg { width: 34px; height: 34px; }
+.fila-top { display: flex; gap: 10px; margin: 2px 0 12px; }
+.fila-top .buscar { flex: 1; margin: 0; }
+.btn-mas { width: 64px; height: 56px; border-radius: 14px; flex: none; display: grid; place-items: center; background: var(--prim); color: var(--prim-texto); box-shadow: var(--sombra); }
+.btn-mas svg { width: 34px; height: 34px; }
 .fila-btns { display: flex; gap: 10px; margin-top: 12px; }
 .fila-btns .btn { flex: 1; }
 
@@ -97,29 +115,36 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 .buscar .limpiar { position: absolute; right: 4px; top: 4px; width: 48px; height: 48px; display: grid; place-items: center; font-size: 1.4rem; color: var(--suave); }
 
 /* Lista de trabajos */
-.lista { display: flex; flex-direction: column; gap: 10px; }
+.lista { display: flex; flex-direction: column; gap: 8px; }
 .trabajo { background: var(--tarjeta); border: 1.5px solid var(--linea); border-radius: 16px; box-shadow: var(--sombra); overflow: hidden; }
 .trabajo.abierto { border-color: var(--prim); border-width: 2px; }
-.cab { display: block; width: 100%; text-align: left; padding: 14px 16px; min-height: 72px; }
-.cab .tit { display: block; font-size: 1.15rem; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
-.cab .fila2 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; }
-.cab .meta { color: var(--suave); font-size: .88rem; }
-.etq { display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: .85rem; font-weight: 800; }
+.cab { display: block; width: 100%; text-align: left; padding: 9px 14px; min-height: 56px; }
+.cab .linea { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; overflow-wrap: anywhere; }
+.cab .tit { font-size: 1rem; font-weight: 800; margin-right: 6px; }
+.cab .linea .etq { vertical-align: 1px; margin-right: 6px; }
+.cab .linea .meta { font-size: .85rem; color: var(--suave); }
+.cab .fila2 { display: flex; align-items: center; gap: 8px; margin-top: 4px; min-width: 0; }
+.cab .meta { color: var(--suave); font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.etq { display: inline-block; padding: 2px 8px; border-radius: 7px; font-size: .78rem; font-weight: 800; flex: none; }
 .etq.f0 { color: var(--f0); background: var(--f0s); } .etq.f1 { color: var(--f1); background: var(--f1s); }
 .etq.f2 { color: var(--f2); background: var(--f2s); } .etq.f3 { color: var(--f3); background: var(--f3s); }
+.etq.f4 { color: #fff; background: var(--f4); }
 .etq.arch { color: var(--suave); background: var(--fondo); border: 1px solid var(--linea); }
 .punto-pend { width: 12px; height: 12px; border-radius: 50%; background: var(--aviso); display: inline-block; }
 .cuerpo { padding: 4px 14px 16px; border-top: 1.5px solid var(--linea); }
-.cuerpo h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); margin: 20px 2px 8px; }
-.fases { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cuerpo h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); margin: 16px 2px 6px; }
+.cuerpo .notas { margin-top: 10px; }
+.fases { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 14px; }
 .fase-btn {
-  min-height: 58px; border-radius: 12px; border: 1.5px solid var(--linea); padding: 6px 8px;
-  font-size: .92rem; font-weight: 700; line-height: 1.15; background: var(--tarjeta);
+  min-height: 46px; border-radius: 10px; border: 1.5px solid var(--linea); padding: 4px 2px;
+  font-size: .72rem; font-weight: 700; line-height: 1.1; background: var(--tarjeta); white-space: nowrap; letter-spacing: -.02em; overflow: hidden;
 }
 .fase-btn.activa.f0 { background: var(--f0); color: #fff; border-color: var(--f0); }
 .fase-btn.activa.f1 { background: var(--f1); color: #fff; border-color: var(--f1); }
 .fase-btn.activa.f2 { background: var(--f2); color: #fff; border-color: var(--f2); }
 .fase-btn.activa.f3 { background: var(--f3); color: #fff; border-color: var(--f3); }
+.fase-btn.activa.f4 { background: var(--f4); color: #fff; border-color: var(--f4); }
+.fase-btn.f4 { color: var(--f4); border-color: var(--f4); }
 :root[data-tema="oscuro"] .fase-btn.activa { color: #0b0d0e !important; }
 @media (prefers-color-scheme: dark) { :root[data-tema="auto"] .fase-btn.activa { color: #0b0d0e !important; } }
 .campos { display: flex; flex-direction: column; border: 1.5px solid var(--linea); border-radius: 12px; overflow: hidden; }
@@ -130,9 +155,28 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 .campo .cv.vacio { color: var(--suave); font-weight: 400; }
 .ia { font-size: .7rem; font-weight: 800; padding: 1px 6px; border-radius: 6px; background: var(--prim-suave); color: var(--prim); margin-left: 6px; vertical-align: 2px; }
 .notas { display: flex; flex-direction: column; gap: 8px; }
-.nota { display: block; width: 100%; text-align: left; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--linea); background: var(--fondo); }
-.nota .nf { display: block; font-size: .85rem; font-weight: 700; color: var(--suave); margin-bottom: 4px; }
-.nota .nt { display: block; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 1.02rem; }
+.nota-fila { display: flex; gap: 6px; align-items: stretch; }
+.nota-fila.hecha .nota { opacity: .6; }
+.nota-fila.hecha .nota .nt { text-decoration: line-through; }
+.nota-btn { flex: none; width: 48px; border-radius: 12px; border: 1.5px solid var(--linea); background: var(--tarjeta); display: grid; place-items: center; color: var(--suave); }
+.nota-btn svg { width: 26px; height: 26px; }
+.nota-btn.marcada { background: var(--ok); border-color: var(--ok); color: #fff; }
+.nota-btn.casilla { color: var(--linea); }
+.nota-btn.casilla svg { width: 30px; height: 30px; }
+.nota-btn.cal { color: var(--f0); }
+.av { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 6px; font-size: .78rem; font-weight: 800; }
+.av.futuro { background: var(--f0s); color: var(--f0); }
+.av.hoy { background: var(--f4); color: #fff; }
+.av.pasado { background: var(--fondo); color: var(--suave); border: 1px solid var(--linea); }
+.ver-hechas { margin-top: 4px; min-height: 48px; }
+.aviso-fila { display: flex; align-items: center; gap: 8px; flex: none; }
+.aviso-fila .lbl { font-weight: 700; flex: none; }
+.aviso-fila input { flex: 1; min-width: 0; height: 52px; border-radius: 12px; border: 1.5px solid var(--linea); background: var(--tarjeta); padding: 0 8px; font-size: 1rem; }
+.aviso-fila input[type=time] { flex: 0 0 104px; }
+.aviso-fila button { flex: none; width: 48px; height: 52px; border-radius: 12px; border: 1.5px solid var(--linea); font-size: 1.2rem; }
+.nota { display: block; flex: 1; min-width: 0; width: 100%; text-align: left; padding: 9px 12px; border-radius: 12px; border: 1.5px solid var(--linea); background: var(--fondo); }
+.nota .nf { display: block; font-size: .8rem; font-weight: 700; color: var(--suave); margin-bottom: 2px; }
+.nota .nt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .98rem; line-height: 1.35; }
 .mas-arriba { margin-top: 14px; }
 .vacio-lista { text-align: center; color: var(--suave); padding: 28px 12px; font-size: 1.05rem; }
 .aviso-caja { background: var(--tarjeta); border: 2px solid var(--aviso); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; }
@@ -140,8 +184,8 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 
 /* Pantallas completas */
 .pantalla {
-  position: fixed; inset: 0; z-index: 20; background: var(--fondo);
-  display: flex; flex-direction: column; height: 100dvh;
+  position: fixed; left: 0; right: 0; top: var(--vvtop, 0px); z-index: 20; background: var(--fondo);
+  display: flex; flex-direction: column; height: var(--vvh, 100dvh);
 }
 .pantalla .barra {
   display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top)) 10px 8px;
@@ -209,8 +253,11 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 <body>
 
 <header class="cabecera" id="cabPrincipal">
-  <h1>Trabajos</h1>
-  <button class="chip local" id="chipSync" type="button">Solo en el teléfono</button>
+  <h1>Trabajos<br>y obras</h1>
+  <button class="icono-btn" id="chipSync" type="button" data-estado="local" aria-label="Estado de la sincronización"></button>
+  <button class="icono-btn" id="btnBuscar" type="button" aria-label="Buscar" title="Buscar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+  </button>
   <button class="icono-btn" id="btnArchivo" type="button" aria-label="Trabajos archivados" title="Archivados">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M10 13h4"/></svg>
   </button>
@@ -220,18 +267,19 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 </header>
 
 <main class="envoltura" id="vistaPrincipal">
-  <button class="btn prim btn-nuevo" id="btnNuevo" type="button">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-    Nuevo trabajo
-  </button>
   <div id="avisoBorrador"></div>
-  <div class="buscar" id="cajaBuscar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input id="q" type="search" placeholder="Buscar trabajos y notas" autocomplete="off" enterkeyhint="search">
-    <button class="limpiar" id="qLimpiar" type="button" aria-label="Borrar búsqueda" hidden>✕</button>
+  <div class="barra-buscar" id="barraBuscar" hidden>
+    <div class="buscar" id="cajaBuscar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Habla o escribe" autocomplete="off" enterkeyhint="search">
+      <button class="limpiar" id="qCerrar" type="button" aria-label="Cerrar búsqueda">✕</button>
+    </div>
+    <button class="mic-peq" id="qMic" type="button" aria-label="Buscar por voz">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
+    </button>
   </div>
+  <button class="btn prim btn-nuevo2" id="btnNuevo" type="button">Nuevo trabajo u obra</button>
   <div class="lista" id="lista"></div>
-  <button class="btn mas-arriba" id="btnArchivo2" type="button">Ver trabajos archivados</button>
 </main>
 
 <!-- Archivados -->
@@ -256,6 +304,12 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
   <div class="contenido">
     <input id="edNombre" type="text" placeholder="Nombre del campo (p. ej. Teléfono)" autocomplete="off" autocapitalize="sentences" hidden>
     <textarea id="edTexto" placeholder="Dicta o escribe aquí…" autocapitalize="sentences"></textarea>
+    <div class="aviso-fila" id="edAviso" hidden>
+      <span class="lbl">📅 Aviso</span>
+      <input type="date" id="edAvFecha" aria-label="Fecha del aviso">
+      <input type="time" id="edAvHora" aria-label="Hora del aviso">
+      <button type="button" id="edAvQuitar" aria-label="Quitar aviso">✕</button>
+    </div>
     <div class="dictado">
       <button class="mic" id="btnMic" type="button" aria-label="Dictar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
@@ -330,7 +384,10 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 'use strict';
 /* ================== Constantes y utilidades ================== */
 const FASES = ['Encargo', 'Terminado trabajo de campo', 'Terminado trabajo de gabinete', 'Facturar'];
-const FASES_CORTAS = ['Encargo', 'Campo terminado', 'Gabinete terminado', 'Facturar'];
+const FASES_CORTAS = ['Encargo', 'Campo', 'Gabinete', 'Factura'];
+const esObra = t => t.tipo === 'obra';
+const etiqueta = t => esObra(t) ? 'Obra' : FASES_CORTAS[t.fase];
+const claseFase = t => esObra(t) ? 'f4' : 'f' + t.fase;
 const FIJOS = [['cliente', 'Cliente'], ['precio', 'Precio'], ['ubicacion', 'Ubicación'], ['fecha', 'Fecha']];
 const LS_DATOS = 'cc.datos.v1', LS_CONF = 'cc.conf.v1', LS_BORR = 'cc.borrador.v1';
 
@@ -344,6 +401,8 @@ const fmtLargo = new Intl.DateTimeFormat('es-ES', { weekday: 'short', day: 'nume
 const fmtCorto = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
 const fmtCortoAnio = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 const fmtHora = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit' });
+const fCorta = ms => { const d = new Date(ms); return d.getDate() + '/' + (d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(2); };
+const fHora = ms => fCorta(ms) + ' ' + fmtHora.format(new Date(ms));
 function fechaCorta(ms) {
   const d = new Date(ms), h = new Date();
   if (d.toDateString() === h.toDateString()) return 'hoy ' + fmtHora.format(d);
@@ -390,7 +449,7 @@ function crearTrabajo(texto) {
   return t;
 }
 function limpio(t) {
-  return { id: t.id, titulo: t.titulo, tituloManual: !!t.tituloManual, fase: t.fase, archivado: !!t.archivado,
+  return { id: t.id, titulo: t.titulo, tituloManual: !!t.tituloManual, fase: t.fase, tipo: t.tipo || null, tipoManual: !!t.tipoManual, archivado: !!t.archivado,
     creado: t.creado, actualizado: t.actualizado, actividad: t.actividad, campos: t.campos, notas: t.notas };
 }
 
@@ -399,25 +458,53 @@ let abiertoId = null;
 
 const ICO_MAS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
 
+const ICO_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const ICO_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>';
+const ICO_CASILLA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>';
+const verHechas = new Set();
+const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+function hoyISO() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function htmlAviso(a) {
+  if (!a || !a.fecha) return '';
+  const [y, m, d] = a.fecha.split('-').map(Number);
+  const f = new Date(y, m - 1, d), h = hoyISO();
+  const cls = a.fecha === h ? 'hoy' : a.fecha < h ? 'pasado' : 'futuro';
+  return `<span class="av ${cls}">📅 ${DIAS[f.getDay()]} ${d}/${m}${y !== new Date().getFullYear() ? '/' + String(y).slice(2) : ''}${a.hora ? ' ' + esc(a.hora) : ''}</span>`;
+}
+function htmlNota(t, n) {
+  const obra = esObra(t);
+  return `<div class="nota-fila${obra && n.hecha ? ' hecha' : ''}">
+    ${obra ? `<button type="button" class="nota-btn${n.hecha ? ' marcada' : ' casilla'}" data-acc="hecha" data-n="${n.id}" aria-label="${n.hecha ? 'Marcar como pendiente' : 'Marcar como hecha'}">${n.hecha ? ICO_CHECK : ICO_CASILLA}</button>` : ''}
+    <button type="button" class="nota" data-acc="editarNota" data-n="${n.id}"><span class="nf">${esc(fHora(n.creada))}${n.editada && n.editada - n.creada > 60000 ? ' · editada ' + esc(fCorta(n.editada)) : ''}${htmlAviso(n.aviso)}</span><span class="nt">${esc(n.texto)}</span></button>
+    ${n.aviso && n.aviso.fecha ? `<button type="button" class="nota-btn cal" data-acc="cal" data-n="${n.id}" aria-label="Añadir a Google Calendar">${ICO_CAL}</button>` : ''}
+  </div>`;
+}
 function htmlTrabajo(t, mostrarArch) {
   const abierto = t.id === abiertoId;
-  const nv = notasVivas(t);
-  const cliente = (t.campos.find(c => c.clave === 'cliente') || {}).valor;
-  const ult = nv.length ? nv[nv.length - 1].creada : t.creado;
-  const meta = [cliente, nv.length + (nv.length === 1 ? ' nota' : ' notas'), fechaCorta(ult)].filter(Boolean).map(esc).join(' · ');
+  const obra = esObra(t);
+  const nv = notasVivas(t).slice().reverse(); // la última nota arriba
+  let cliente = (t.campos.find(c => c.clave === 'cliente') || {}).valor || '';
+  if (cliente.length > 22) cliente = cliente.slice(0, 21) + '…';
+  const meta = [cliente, fCorta(t.creado)].filter(Boolean).join(' · ');
+  // Que quepa en dos líneas: si el título es largo se recorta y la etiqueta y la fecha siempre se ven
+  let tit = t.titulo;
+  const hueco = Math.max(16, Math.round(54 - etiqueta(t).length * 1.1 - meta.length * 0.85));
+  if (tit.length > hueco) tit = tit.slice(0, hueco - 1).trim() + '…';
   let h = `<article class="trabajo${abierto ? ' abierto' : ''}" data-id="${t.id}">
     <button class="cab" type="button" data-acc="abrir" aria-expanded="${abierto}">
-      <span class="tit">${esc(t.titulo)}</span>
-      <span class="fila2"><span class="etq f${t.fase}">${esc(FASES_CORTAS[t.fase])}</span>${mostrarArch && t.archivado ? '<span class="etq arch">Archivado</span>' : ''}<span class="meta">${meta}</span>${t.pendiente && conf.url ? '<span class="punto-pend" title="Pendiente de subir"></span>' : ''}</span>
+      <span class="linea"><span class="tit">${esc(tit)}</span><span class="etq ${claseFase(t)}">${esc(etiqueta(t))}</span>${mostrarArch && t.archivado ? '<span class="etq arch">Archivado</span>' : ''}<span class="meta">${esc(meta)}</span>${t.pendiente && conf.url ? ' <span class="punto-pend" title="Pendiente de subir"></span>' : ''}</span>
     </button>`;
   if (!abierto) return h + '</article>';
+  const pendientesN = obra ? nv.filter(n => !n.hecha) : nv;
+  const hechas = obra ? nv.filter(n => n.hecha) : [];
+  const verH = verHechas.has(t.id);
   h += `<div class="cuerpo">
     <button class="btn prim mas-arriba" type="button" data-acc="nota">${ICO_MAS} Añadir nota</button>
-    <h3>Fase</h3><div class="fases">${FASES.map((f, i) => `<button type="button" class="fase-btn f${i}${t.fase === i ? ' activa' : ''}" data-acc="fase" data-f="${i}" aria-pressed="${t.fase === i}">${esc(f)}</button>`).join('')}</div>
-    <h3>Datos</h3><div class="campos">${t.campos.map(c => `<button type="button" class="campo" data-acc="campo" data-c="${c.id}"><span class="cn">${esc(c.nombre)}</span><span class="cv${c.valor ? '' : ' vacio'}">${c.valor ? esc(c.valor) : 'Tocar para añadir'}${c.valor && c.origen === 'ia' ? '<span class="ia">IA</span>' : ''}</span></button>`).join('')}</div>
+    <div class="notas">${pendientesN.map(n => htmlNota(t, n)).join('') || (hechas.length ? '<p class="vacio-lista">Todo hecho ✓</p>' : '<p class="vacio-lista">Sin notas</p>')}
+    ${hechas.length ? `<button type="button" class="btn ver-hechas" data-acc="verHechas">${verH ? 'Ocultar' : 'Ver'} hechas (${hechas.length})</button>${verH ? hechas.map(n => htmlNota(t, n)).join('') : ''}` : ''}</div>
+    <div class="fases">${FASES_CORTAS.map((f, i) => `<button type="button" class="fase-btn f${i}${!obra && t.fase === i ? ' activa' : ''}" data-acc="fase" data-f="${i}" aria-pressed="${!obra && t.fase === i}" title="${esc(FASES[i])}">${esc(f)}</button>`).join('')}<button type="button" class="fase-btn f4${obra ? ' activa' : ''}" data-acc="fase" data-f="4" aria-pressed="${obra}">Obra</button></div>
+    <h3>Datos</h3><div class="campos">${t.campos.filter(c => !(obra && !c.valor && (c.clave === 'precio' || c.clave === 'fecha'))).map(c => `<button type="button" class="campo" data-acc="campo" data-c="${c.id}"><span class="cn">${esc(c.nombre)}</span><span class="cv${c.valor ? '' : ' vacio'}">${c.valor ? esc(c.valor) : 'Tocar para añadir'}${c.valor && c.origen === 'ia' ? '<span class="ia">IA</span>' : ''}</span></button>`).join('')}</div>
     <button class="btn mas-arriba" type="button" data-acc="nuevoCampo">${ICO_MAS} Añadir campo</button>
-    <h3>Notas (${nv.length})</h3><div class="notas">${nv.map(n => `<button type="button" class="nota" data-acc="editarNota" data-n="${n.id}"><span class="nf">${esc(fmtLargo.format(new Date(n.creada)))}${n.editada && n.editada - n.creada > 60000 ? ' · editada' : ''}</span><span class="nt">${esc(n.texto)}</span></button>`).join('') || '<p class="vacio-lista">Sin notas</p>'}</div>
-    ${nv.length > 1 ? `<button class="btn prim mas-arriba" type="button" data-acc="nota">${ICO_MAS} Añadir nota</button>` : ''}
     <div class="fila-btns">
       <button class="btn" type="button" data-acc="titulo">Cambiar título</button>
       ${t.archivado ? '<button class="btn" type="button" data-acc="restaurar">Restaurar</button>' : '<button class="btn" type="button" data-acc="archivar">Archivar</button>'}
@@ -425,25 +512,38 @@ function htmlTrabajo(t, mostrarArch) {
   </div></article>`;
   return h;
 }
-
-function coincide(t, q) {
-  if (!q) return true;
-  const partes = [t.titulo, FASES[t.fase], ...t.campos.map(c => c.nombre + ' ' + c.valor), ...notasVivas(t).map(n => n.texto)];
-  return norm(partes.join('\n')).includes(q);
+function urlCalendario(t, n) {
+  const a = n.aviso, f = a.fecha.replace(/-/g, '');
+  const p2 = x => String(x).padStart(2, '0');
+  const fmt = d => d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + 'T' + p2(d.getHours()) + p2(d.getMinutes()) + '00';
+  const [y, m, d] = a.fecha.split('-').map(Number);
+  let fechas;
+  if (a.hora) { const [hh, mm] = a.hora.split(':').map(Number); fechas = fmt(new Date(y, m - 1, d, hh, mm)) + '/' + fmt(new Date(y, m - 1, d, hh + 1, mm)); }
+  else { const sig = new Date(y, m - 1, d + 1); fechas = f + '/' + sig.getFullYear() + p2(sig.getMonth() + 1) + p2(sig.getDate()); }
+  const ubic = (t.campos.find(c => c.clave === 'ubicacion') || {}).valor || '';
+  const asunto = a.asunto ? a.asunto + ' · ' + t.titulo : t.titulo;
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(asunto) + '&dates=' + fechas +
+    '&details=' + encodeURIComponent((esObra(t) ? 'Obra' : FASES[t.fase]) + ' — ' + t.titulo + '\n\n' + n.texto) +
+    (ubic ? '&location=' + encodeURIComponent(ubic) : '') + '&ctz=' + encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Madrid');
 }
-const ordenar = arr => arr.sort((a, b) => (b.actividad || b.creado) - (a.actividad || a.creado));
+function coincide(t, palabras) {
+  if (!palabras.length) return true;
+  const todo = norm([t.titulo, etiqueta(t), esObra(t) ? 'obra' : FASES[t.fase], ...t.campos.map(c => c.nombre + ' ' + c.valor), ...notasVivas(t).map(n => n.texto)].join('\n'));
+  return palabras.every(p => todo.includes(p));
+}
+const ordenar = arr => arr.sort((a, b) => a.creado - b.creado);
+const ordenarArch = arr => arr.sort((a, b) => (b.actualizado || 0) - (a.actualizado || 0));
 
 function render() {
-  const q = norm($('#q').value.trim());
-  $('#qLimpiar').hidden = !q;
-  const activos = ordenar(db.trabajos.filter(t => q ? coincide(t, q) : !t.archivado));
-  $('#lista').innerHTML = activos.length ? activos.map(t => htmlTrabajo(t, !!q)).join('')
-    : `<p class="vacio-lista">${q ? 'Nada coincide con la búsqueda.' : 'No hay trabajos activos.<br>Pulsa <b>Nuevo trabajo</b> y dicta la primera nota.'}</p>`;
-  const arch = ordenar(db.trabajos.filter(t => t.archivado));
+  const palabras = norm($('#q').value).split(/[\s,.;:]+/).filter(p => p.length > 1);
+  const buscando = palabras.length > 0;
+  const lista = db.trabajos.filter(t => buscando ? coincide(t, palabras) : !t.archivado);
+  const trab = ordenar(lista.filter(t => !esObra(t))), obras = ordenar(lista.filter(esObra));
+  let h = trab.map(t => htmlTrabajo(t, buscando)).join('');
+  if (obras.length) h += (trab.length ? '<h2 class="sep">Obras</h2>' : '') + obras.map(t => htmlTrabajo(t, buscando)).join('');
+  $('#lista').innerHTML = h || `<p class="vacio-lista">${buscando ? 'Nada coincide con la búsqueda.' : 'No hay trabajos activos.<br>Pulsa <b>Nuevo trabajo u obra</b> y dicta la primera nota.'}</p>`;
+  const arch = ordenarArch(db.trabajos.filter(t => t.archivado));
   $('#listaArch').innerHTML = arch.length ? arch.map(t => htmlTrabajo(t, false)).join('') : '<p class="vacio-lista">No hay trabajos archivados.</p>';
-  const n = arch.length;
-  $('#btnArchivo2').textContent = n ? `Ver trabajos archivados (${n})` : 'Ver trabajos archivados';
-  $('#cajaBuscar').hidden = db.trabajos.length === 0;
   pintarChip();
   pintarBorrador();
 }
@@ -527,11 +627,24 @@ document.addEventListener('click', e => {
   if (acc === 'titulo') return abrirEditor({ modo: 'titulo', tid: t.id });
   if (acc === 'fase') {
     const f = +b.dataset.f;
-    if (t.fase === f) return;
-    const antes = t.fase;
-    t.fase = f; t.actividad = ahora(); marcar(t);
-    if (!guardarSeguro()) { t.fase = antes; return render(); }
-    render(); toast('Fase: ' + FASES[f], 'okk'); sincronizar();
+    if (f === 4 ? esObra(t) : (!esObra(t) && t.fase === f)) return;
+    const antes = { fase: t.fase, tipo: t.tipo, tipoManual: t.tipoManual };
+    if (f === 4) t.tipo = 'obra'; else { t.tipo = null; t.fase = f; }
+    t.tipoManual = true; t.actividad = ahora(); marcar(t);
+    if (!guardarSeguro()) { Object.assign(t, antes); return render(); }
+    render(); toast(f === 4 ? 'Marcado como obra' : 'Fase: ' + FASES[f], 'okk'); sincronizar();
+    return;
+  }
+  if (acc === 'verHechas') { verHechas.has(t.id) ? verHechas.delete(t.id) : verHechas.add(t.id); render(); return; }
+  if (acc === 'cal') { const n = t.notas.find(n => n.id === b.dataset.n); if (n && n.aviso) window.open(urlCalendario(t, n), '_blank'); return; }
+  if (acc === 'hecha') {
+    const n = t.notas.find(n => n.id === b.dataset.n);
+    const cambiar = v => { n.hecha = v; n.cambio = ahora(); marcar(t); };
+    cambiar(!n.hecha);
+    if (!guardarSeguro()) { cambiar(!n.hecha); return render(); }
+    render(); sincronizar();
+    const v = n.hecha;
+    toast(v ? '✓ Nota marcada como hecha' : 'Nota pendiente otra vez', 'okk', { texto: 'Deshacer', fn: () => { cambiar(!v); guardarSeguro(); render(); sincronizar(); } }, 5000);
     return;
   }
   if (acc === 'archivar' || acc === 'restaurar') {
@@ -551,10 +664,39 @@ function guardarSeguro() {
 
 $('#btnNuevo').addEventListener('click', () => abrirEditor({ modo: 'nuevo' }, true));
 $('#btnArchivo').addEventListener('click', () => { abiertoId = null; render(); abrirCapa('archivados'); });
-$('#btnArchivo2').addEventListener('click', () => { abiertoId = null; render(); abrirCapa('archivados'); });
 $('#btnAjustes').addEventListener('click', () => { pintarAjustes(); abrirCapa('ajustes'); });
 $('#q').addEventListener('input', () => { abiertoId = null; render(); });
-$('#qLimpiar').addEventListener('click', () => { $('#q').value = ''; render(); });
+function abrirBusqueda() {
+  $('#barraBuscar').hidden = false; $('#btnBuscar').classList.add('sel');
+  window.scrollTo(0, 0);
+  if (SR) dictarBusqueda(); else $('#q').focus();
+}
+function cerrarBusqueda() {
+  pararBusquedaVoz();
+  $('#barraBuscar').hidden = true; $('#btnBuscar').classList.remove('sel');
+  if ($('#q').value) { $('#q').value = ''; render(); }
+}
+$('#btnBuscar').addEventListener('click', () => { $('#barraBuscar').hidden ? abrirBusqueda() : cerrarBusqueda(); });
+$('#qCerrar').addEventListener('click', cerrarBusqueda);
+let recQ = null;
+function dictarBusqueda() {
+  if (!SR || recQ) return;
+  let r;
+  try { r = recQ = new SR(); r.lang = 'es-ES'; r.continuous = false; r.interimResults = true; } catch (e) { recQ = null; return; }
+  $('#qMic').classList.add('activo');
+  r.onresult = ev => {
+    if (recQ !== r) return;
+    let tx = '';
+    for (let i = 0; i < ev.results.length; i++) tx = unir(tx, ev.results[i][0].transcript);
+    $('#q').value = tx; abiertoId = null; render();
+  };
+  r.onerror = ev => { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') toast('Sin permiso de micrófono. Puedes escribir la búsqueda.', 'err'); };
+  r.onend = () => { if (recQ === r) { recQ = null; $('#qMic').classList.remove('activo'); } };
+  try { r.start(); } catch (e) { recQ = null; $('#qMic').classList.remove('activo'); }
+}
+function pararBusquedaVoz() { const r = recQ; recQ = null; $('#qMic').classList.remove('activo'); if (r) try { r.abort(); } catch (e) {} }
+$('#qMic').addEventListener('click', () => { recQ ? pararBusquedaVoz() : dictarBusqueda(); });
+$('#q').addEventListener('focus', pararBusquedaVoz);
 
 /* ================== Editor ================== */
 let ed = null; // { modo, tid, nid, cid, inicial, inicialNombre }
@@ -562,9 +704,9 @@ const ta = $('#edTexto'), inNombre = $('#edNombre');
 
 function abrirEditor(o, dictar) {
   const t = o.tid ? porId(o.tid) : null;
-  let titulo = 'Nuevo trabajo', texto = '', nombre = null, borrar = false;
+  let titulo = 'Nuevo trabajo u obra', texto = '', nombre = null, borrar = false;
   if (o.modo === 'nota') titulo = 'Nueva nota · ' + t.titulo;
-  if (o.modo === 'editarNota') { const n = t.notas.find(n => n.id === o.nid); titulo = 'Editar nota · ' + fechaCorta(n.creada); texto = n.texto; borrar = true; }
+  if (o.modo === 'editarNota') { const n = t.notas.find(n => n.id === o.nid); titulo = 'Nota del ' + fHora(n.creada); texto = n.texto; borrar = true; }
   if (o.modo === 'campo') { const c = t.campos.find(c => c.id === o.cid); titulo = c.nombre + ' · ' + t.titulo; texto = c.valor; if (!c.clave) { nombre = c.nombre; borrar = true; } }
   if (o.modo === 'nuevoCampo') { titulo = 'Nuevo campo · ' + t.titulo; nombre = ''; }
   if (o.modo === 'titulo') { titulo = 'Título del trabajo'; texto = t.titulo; }
@@ -579,6 +721,13 @@ function abrirEditor(o, dictar) {
   $('#edBorrar').hidden = !borrar;
   $('#edBorrar').textContent = o.modo === 'editarNota' ? 'Eliminar nota' : 'Eliminar campo';
   $('#edGuardar').textContent = o.modo === 'nuevo' ? 'Guardar trabajo' : 'Guardar';
+  const esNota = o.modo === 'nuevo' || o.modo === 'nota' || o.modo === 'editarNota';
+  const notaAct = o.modo === 'editarNota' ? t.notas.find(n => n.id === o.nid) : null;
+  const av = (notaAct && notaAct.aviso) || {};
+  $('#edAviso').hidden = !esNota;
+  $('#edAvFecha').value = av.fecha || ''; $('#edAvHora').value = av.hora || '';
+  ed.inicialAviso = (av.fecha || '') + '|' + (av.hora || '');
+  pararBusquedaVoz();
   pintarMic();
   abrirCapa('editor');
   if (dictar && SR) empezarDictado();
@@ -587,17 +736,19 @@ function abrirEditor(o, dictar) {
 }
 function editorModificado() {
   if (!ed) return false;
-  return ta.value.trim() !== String(ed.inicial || '').trim() || (!inNombre.hidden && inNombre.value.trim() !== ed.inicialNombre.trim());
+  return ta.value.trim() !== String(ed.inicial || '').trim() || (!inNombre.hidden && inNombre.value.trim() !== ed.inicialNombre.trim())
+    || (!$('#edAviso').hidden && ($('#edAvFecha').value + '|' + $('#edAvHora').value) !== (ed.inicialAviso || '|'));
 }
 function finEditor() { pararDictado(true); ed = null; ta.value = ''; ta.blur(); inNombre.blur(); }
 
 $('#edGuardar').addEventListener('click', guardarEditor);
+$('#edAvQuitar').addEventListener('click', () => { $('#edAvFecha').value = ''; $('#edAvHora').value = ''; });
 $('#edBorrar').addEventListener('click', async () => {
   if (!ed) return;
   const t = porId(ed.tid);
   if (ed.modo === 'editarNota') {
     if (!await preguntar('¿Eliminar esta nota? Dejará de verse en la app (en la hoja de cálculo queda marcada como borrada).', 'Eliminar nota', 'Cancelar', true)) return;
-    const n = t.notas.find(n => n.id === ed.nid); n.borrada = true; n.editada = ahora();
+    const n = t.notas.find(n => n.id === ed.nid); n.borrada = true; n.cambio = ahora();
   } else {
     if (!await preguntar('¿Eliminar este campo?', 'Eliminar campo', 'Cancelar', true)) return;
     t.campos = t.campos.filter(c => c.id !== ed.cid);
@@ -624,10 +775,17 @@ function guardarEditor() {
     case 'nota':
       notaNueva = { id: nuevoId(), texto, creada: m, editada: m, borrada: false };
       t.notas.push(notaNueva); t.actividad = m; t.iaPendiente.push(notaNueva.id); marcar(t); msg = 'Nota guardada'; break;
-    case 'editarNota': { const n = t.notas.find(n => n.id === o.nid); if (n.texto !== texto) { n.texto = texto; n.editada = m; marcar(t); } msg = 'Nota guardada'; break; }
+    case 'editarNota': { const n = t.notas.find(n => n.id === o.nid); notaNueva = n; if (n.texto !== texto) { n.texto = texto; n.editada = m; n.cambio = m; marcar(t); } msg = 'Nota guardada'; break; }
     case 'campo': { const c = t.campos.find(c => c.id === o.cid); if (c.valor !== texto || (!c.clave && c.nombre !== nombre)) { c.valor = texto; c.origen = 'manual'; if (!c.clave) c.nombre = nombre; marcar(t); } break; }
     case 'nuevoCampo': t.campos.push({ id: nuevoId(), clave: null, nombre, valor: texto, origen: 'manual' }); marcar(t); break;
     case 'titulo': t.titulo = texto || tituloAuto((notasVivas(t)[0] || {}).texto || ''); t.tituloManual = !!texto; marcar(t); break;
+  }
+  if (notaNueva && !$('#edAviso').hidden) {
+    const fe = $('#edAvFecha').value, ho = fe ? $('#edAvHora').value : '';
+    if ((fe + '|' + ho) !== (ed.inicialAviso || '|')) {
+      notaNueva.aviso = fe ? { fecha: fe, hora: ho, asunto: (notaNueva.aviso && notaNueva.aviso.asunto) || '', manual: true } : { manual: true };
+      notaNueva.cambio = m; marcar(t);
+    }
   }
   try { guardarLocal(); }
   catch (e) {
@@ -694,17 +852,25 @@ function juntar(previo, nuevo) {
   if (!previo || /\s$/.test(previo)) return previo + nuevo;
   return previo + ' ' + nuevo;
 }
+let quiere = false, vacias = 0;
+const FATALES = { 'not-allowed': 1, 'service-not-allowed': 1, 'network': 1, 'audio-capture': 1, 'language-not-supported': 1 };
 function empezarDictado() {
   if (!SR) { pintarMic('Tu navegador no permite el dictado integrado. Toca el cuadro y usa el micrófono del teclado.'); ta.focus(); return; }
-  if (dictando) return;
-  ultimoError = '';
+  if (quiere) return;
+  quiere = true; dictando = true; vacias = 0; ultimoError = '';
+  pintarMic();
+  arrancar();
+}
+// Chrome en Android corta la escucha en cada pausa: se vuelve a arrancar sola hasta que el usuario la pare.
+function arrancar() {
+  if (!quiere || !ed || rec) return;
+  let esta;
   try {
-    rec = new SR();
+    esta = rec = new SR();
     rec.lang = 'es-ES'; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
-  } catch (e) { pintarMic('No se pudo iniciar el dictado: ' + e.message); return; }
+  } catch (e) { quiere = dictando = false; rec = null; pintarMic('No se pudo iniciar el dictado: ' + e.message); return; }
   base = ta.value;
-  const esta = rec;
-  rec.onstart = () => { if (rec === esta) { dictando = true; pintarMic(); } };
+  let oido = false;
   rec.onresult = ev => {
     if (rec !== esta || !ed) return;
     let fin = '', inter = '';
@@ -712,7 +878,9 @@ function empezarDictado() {
       const r = ev.results[i], tx = r[0].transcript;
       if (r.isFinal) fin = unir(fin, tx); else inter = unir(inter, tx);
     }
-    ta.value = juntar(base, unir(fin, inter));
+    const nuevo = unir(fin, inter);
+    if (nuevo) { oido = true; vacias = 0; }
+    ta.value = juntar(base, nuevo);
     ta.scrollTop = ta.scrollHeight;
     guardarBorrador();
   };
@@ -722,21 +890,29 @@ function empezarDictado() {
       'not-allowed': 'Permiso de micrófono denegado. Actívalo: candado de la barra de direcciones (o Ajustes de Android → Apps → Chrome → Permisos → Micrófono).',
       'service-not-allowed': 'El dictado está bloqueado en este navegador. Toca el cuadro y usa el micrófono del teclado.',
       'network': 'Sin conexión: el dictado integrado necesita Internet. Usa el micrófono del teclado (Gboard puede dictar sin conexión).',
-      'no-speech': 'No te he oído. Pulsa el micrófono y vuelve a hablar.',
       'audio-capture': 'No se encuentra el micrófono.',
       'language-not-supported': 'Idioma no disponible para dictado.'
     };
-    if (ev.error !== 'aborted') ultimoError = msgs[ev.error] || ('Error de dictado: ' + ev.error);
+    if (FATALES[ev.error]) { quiere = false; ultimoError = msgs[ev.error]; }
   };
-  rec.onend = () => { if (rec !== esta) return; dictando = false; rec = null; base = ta.value; pintarMic(ultimoError); };
-  try { rec.start(); dictando = true; pintarMic(); }
-  catch (e) { dictando = false; rec = null; pintarMic('No se pudo iniciar el dictado.'); }
+  rec.onend = () => {
+    if (rec !== esta) return;
+    rec = null; base = ta.value;
+    if (!oido) vacias++;
+    if (vacias >= 15) { quiere = false; ultimoError = 'Dictado parado tras un rato en silencio. Pulsa el micrófono para seguir.'; }
+    if (quiere && ed) { setTimeout(arrancar, 150); return; }
+    quiere = dictando = false;
+    pintarMic(ultimoError);
+  };
+  try { rec.start(); }
+  catch (e) { rec = null; setTimeout(arrancar, 400); }
 }
 function pararDictado(cortar) {
-  if (!rec) { dictando = false; return; }
+  quiere = false;
   const r = rec;
+  if (!r) { dictando = false; pintarMic(); return; }
   try { cortar ? r.abort() : r.stop(); } catch (e) {}
-  if (cortar) { rec = null; dictando = false; }
+  if (cortar || !rec) { rec = null; dictando = false; pintarMic(); }
 }
 function pintarMic(error) {
   const b = $('#btnMic'), s = $('#micEstado');
@@ -744,7 +920,7 @@ function pintarMic(error) {
   b.disabled = !SR;
   b.setAttribute('aria-label', dictando ? 'Parar dictado' : 'Dictar');
   if (!SR) s.innerHTML = 'Dictado integrado no disponible<small>Toca el cuadro y usa el micrófono del teclado</small>';
-  else if (dictando) s.innerHTML = 'Escuchando… habla ahora<small>Pulsa el micrófono para parar</small>';
+  else if (dictando) s.innerHTML = 'Escuchando… habla cuando quieras<small>Sigue escuchando hasta que pulses el micrófono</small>';
   else if (error) s.innerHTML = '<span style="color:var(--peligro)">' + esc(error) + '</span>';
   else s.innerHTML = 'Pulsa para dictar<small>También puedes escribir o usar el micrófono del teclado</small>';
 }
@@ -784,10 +960,11 @@ function fusionar(remotos) {
     if (!l) { r.pendiente = false; r.iaPendiente = []; asegurarFijos(r); db.trabajos.push(r); return; }
     const mapa = new Map(l.notas.map(n => [n.id, n]));
     const remotas = new Set();
-    r.notas.forEach(rn => { remotas.add(rn.id); const ln = mapa.get(rn.id); if (!ln || (rn.editada || 0) > (ln.editada || 0)) mapa.set(rn.id, rn); });
+    const marca = n => n.cambio || n.editada || n.creada || 0;
+    r.notas.forEach(rn => { remotas.add(rn.id); const ln = mapa.get(rn.id); if (!ln || marca(rn) > marca(ln)) mapa.set(rn.id, rn); });
     l.notas = Array.from(mapa.values()).sort((a, b) => a.creada - b.creada);
     if (!l.pendiente && (r.actualizado || 0) >= (l.actualizado || 0)) {
-      ['titulo', 'tituloManual', 'fase', 'archivado', 'campos', 'actualizado', 'actividad', 'creado'].forEach(k => { if (r[k] !== undefined) l[k] = r[k]; });
+      ['titulo', 'tituloManual', 'fase', 'tipo', 'tipoManual', 'archivado', 'campos', 'actualizado', 'actividad', 'creado'].forEach(k => { if (r[k] !== undefined) l[k] = r[k]; });
       asegurarFijos(l);
     }
     if (l.notas.some(n => !remotas.has(n.id))) l.pendiente = true;
@@ -842,6 +1019,7 @@ async function procesarIA() {
       const nota = nv.find(n => n.id === nid);
       if (!nota) { t.iaPendiente.shift(); continue; }
       let r;
+      estadoSync = { tipo: 'ia' }; pintarChip();
       try {
         r = await api('ia', { trabajo: limpio(t), notaId: nid, pedirTitulo: !t.tituloManual && nv[0].id === nid });
       } catch (e) {
@@ -857,22 +1035,24 @@ async function procesarIA() {
         return;
       }
       t.iaPendiente.shift(); t.iaIntentos = 0;
-      const cambios = aplicarIA(t, r.resultado || {});
+      const cambios = aplicarIA(t, r.resultado || {}, nid);
       guardarLocal();
       if (cambios.length) { toast('IA: ' + cambios.join(', '), 'okk', null, 5000); repetir = true; }
       render();
     }
   }
 }
-function aplicarIA(t, r) {
+function aplicarIA(t, r, nid) {
   const cambios = [];
+  const nota = t.notas.find(n => n.id === nid);
+  if (r.esObra && !esObra(t) && !t.tipoManual && notasVivas(t)[0] && notasVivas(t)[0].id === nid) { t.tipo = 'obra'; cambios.push('obra'); }
   if (r.titulo && !t.tituloManual && r.titulo !== t.titulo) { t.titulo = r.titulo; cambios.push('título'); }
   FIJOS.forEach(([clave, nombre]) => {
     const v = (r[clave] || '').trim();
     const c = t.campos.find(c => c.clave === clave);
     if (v && c && c.origen !== 'manual' && c.valor !== v) { c.valor = v; c.origen = 'ia'; cambios.push(nombre.toLowerCase()); }
   });
-  (r.otros || []).forEach(o => {
+  if (!esObra(t)) (r.otros || []).forEach(o => {
     const nombre = (o.nombre || '').trim(), v = (o.valor || '').trim();
     if (!nombre || !v) return;
     const nombreBonito = nombre.charAt(0).toUpperCase() + nombre.slice(1);
@@ -880,24 +1060,44 @@ function aplicarIA(t, r) {
     if (!c) { t.campos.push({ id: nuevoId(), clave: null, nombre: nombreBonito, valor: v, origen: 'ia' }); cambios.push(nombre.toLowerCase()); }
     else if (c.origen !== 'manual' && c.valor !== v) { c.valor = v; c.origen = 'ia'; cambios.push(nombre.toLowerCase()); }
   });
-  if (typeof r.fase === 'number' && r.fase > t.fase && r.fase <= 3) { t.fase = r.fase; cambios.push('fase → ' + FASES_CORTAS[r.fase]); }
+  if (nota && r.aviso && r.aviso.fecha && !(nota.aviso && nota.aviso.manual)) {
+    nota.aviso = { fecha: r.aviso.fecha, hora: r.aviso.hora || '', asunto: r.aviso.asunto || '' };
+    nota.cambio = ahora(); cambios.push('aviso 📅');
+  }
+  if (!esObra(t) && typeof r.fase === 'number' && r.fase > t.fase && r.fase <= 3) { t.fase = r.fase; cambios.push('fase → ' + FASES_CORTAS[r.fase]); }
   if (cambios.length) marcar(t);
   return cambios;
 }
 
+const NUBE = '<path d="M7 19h10.5a4.5 4.5 0 0 0 .6-8.96A6.5 6.5 0 0 0 5.6 9.3 4.9 4.9 0 0 0 7 19z" fill="currentColor"/>';
+const ICO_SYNC = {
+  ok: NUBE + '<path d="M8.8 13.6l2.4 2.4 4.2-4.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+  sync: NUBE + '<circle cx="8.8" cy="14.2" r="1.2" fill="#fff"/><circle cx="12.2" cy="14.2" r="1.2" fill="#fff"/><circle cx="15.6" cy="14.2" r="1.2" fill="#fff"/>',
+  ia: NUBE + '<path d="M12.2 10.2l1 2.4 2.4 1-2.4 1-1 2.4-1-2.4-2.4-1 2.4-1z" fill="#fff"/>',
+  pend: NUBE + '<path d="M12.2 17v-5.2M9.8 14l2.4-2.4 2.4 2.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+  err: NUBE + '<path d="M12.2 10.8v3.4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12.2" cy="16.6" r="1.3" fill="#fff"/>',
+  local: '<rect x="7" y="2.5" width="10" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 18.5h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+};
+const TXT_SYNC = {
+  ok: 'Todo guardado en la nube', sync: 'Sincronizando con la nube…', ia: 'La IA está revisando la última nota…',
+  pend: 'Hay cambios guardados en el teléfono pendientes de subir', err: 'No se ha podido sincronizar', local: 'Solo se guarda en el teléfono (sin servidor configurado)'
+};
+function estadoActual() {
+  if (!conf.url || !conf.clave) return 'local';
+  const t = estadoSync.tipo;
+  if (t === 'sync' || t === 'ia' || t === 'err') return t;
+  return pendientes() ? 'pend' : 'ok';
+}
 function pintarChip() {
-  const c = $('#chipSync'), n = pendientes();
-  let tipo = estadoSync.tipo, txt;
-  if (!conf.url || !conf.clave) { tipo = 'local'; txt = 'Solo en el teléfono'; }
-  else if (tipo === 'sync') txt = 'Sincronizando…';
-  else if (tipo === 'err') txt = n ? `⚠ ${n} sin subir` : (estadoSync.codigo === 'CLAVE' ? '⚠ Clave incorrecta' : '⚠ Sin sincronizar');
-  else if (n) { tipo = 'pend'; txt = `⏳ ${n} sin subir`; }
-  else txt = '✓ En la nube';
-  c.className = 'chip ' + (tipo === 'sync' ? 'pend' : tipo);
-  c.textContent = txt;
+  const c = $('#chipSync'), e = estadoActual(), n = pendientes();
+  if (c.dataset.estado === e && c.dataset.n === String(n) && c.innerHTML) return;
+  c.dataset.estado = e; c.dataset.n = n;
+  c.innerHTML = '<svg viewBox="0 0 24 24">' + ICO_SYNC[e] + '</svg>' + ((e === 'pend' || e === 'err') && n ? '<span class="contador">' + n + '</span>' : '');
+  c.title = TXT_SYNC[e]; c.setAttribute('aria-label', TXT_SYNC[e]);
 }
 $('#chipSync').addEventListener('click', async () => {
   if (!conf.url || !conf.clave) { pintarAjustes(); abrirCapa('ajustes'); return; }
+  toast(TXT_SYNC[estadoActual()] + (estadoSync.tipo === 'err' && estadoSync.txt ? ': ' + estadoSync.txt : ''), '', null, 3000);
   const ok = await sincronizar({ bajar: true });
   if (ok) toast(pendientes() ? '⏳ Quedan cambios por subir' : '✓ Todo está guardado en la nube', 'okk');
   else toast('⚠ No se ha podido sincronizar: ' + estadoSync.txt + '. Tus datos siguen guardados en el teléfono.', 'err');
@@ -956,6 +1156,12 @@ function configDesdeEnlace() {
     setTimeout(() => toast('✓ Servidor configurado', 'okk'), 300);
   }
 }
+function ajustarVV() {
+  const v = window.visualViewport; if (!v) return;
+  document.documentElement.style.setProperty('--vvh', v.height + 'px');
+  document.documentElement.style.setProperty('--vvtop', v.offsetTop + 'px');
+}
+if (window.visualViewport) { visualViewport.addEventListener('resize', ajustarVV); visualViewport.addEventListener('scroll', ajustarVV); ajustarVV(); }
 cargar();
 configDesdeEnlace();
 aplicarTema();

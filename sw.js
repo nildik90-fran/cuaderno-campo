@@ -1,6 +1,6 @@
 // Service worker: permite abrir la app sin conexión.
 // Al publicar cambios en index.html, sube el número de VERSION.
-const VERSION = 'cuaderno-v1';
+const VERSION = 'cuaderno-v3';
 const ARCHIVOS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', e => {
