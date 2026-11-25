@@ -115,11 +115,17 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 .buscar .limpiar { position: absolute; right: 4px; top: 4px; width: 48px; height: 48px; display: grid; place-items: center; font-size: 1.4rem; color: var(--suave); }
 
 /* Lista de trabajos */
-.lista { display: flex; flex-direction: column; gap: 8px; }
-.trabajo { background: var(--tarjeta); border: 1.5px solid var(--linea); border-radius: 16px; box-shadow: var(--sombra); overflow: hidden; }
+.lista { display: flex; flex-direction: column; gap: 6px; }
+.trabajo { background: var(--tarjeta); border: 1.5px solid var(--linea); border-radius: 14px; box-shadow: var(--sombra); overflow: hidden; }
 .trabajo.abierto { border-color: var(--prim); border-width: 2px; }
-.cab { display: block; width: 100%; text-align: left; padding: 9px 14px; min-height: 56px; }
-.cab .linea { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; overflow-wrap: anywhere; }
+.cabfila { display: flex; align-items: stretch; }
+.cab { display: block; flex: 1; min-width: 0; width: 100%; text-align: left; padding: 5px 8px 5px 12px; min-height: 48px; }
+.cab .linea { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.38; overflow-wrap: anywhere; }
+.asa { flex: none; width: 44px; min-height: 48px; display: grid; place-items: center; color: var(--suave); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab; }
+.asa svg { width: 22px; height: 22px; }
+.trabajo.arrastrando { position: relative; z-index: 4; border-color: var(--prim); border-width: 2px; box-shadow: 0 10px 28px rgba(0,0,0,.28); }
+.trabajo.arrastrando .asa { color: var(--prim); cursor: grabbing; }
+body.arrastrando { user-select: none; -webkit-user-select: none; }
 .cab .tit { font-size: 1rem; font-weight: 800; margin-right: 6px; }
 .cab .linea .etq { vertical-align: 1px; margin-right: 6px; }
 .cab .linea .meta { font-size: .85rem; color: var(--suave); }
@@ -383,8 +389,11 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 <script>
 'use strict';
 /* ================== Constantes y utilidades ================== */
-const FASES = ['Encargo', 'Terminado trabajo de campo', 'Terminado trabajo de gabinete', 'Facturar'];
-const FASES_CORTAS = ['Encargo', 'Campo', 'Gabinete', 'Factura'];
+// La fase indica siempre lo que está PENDIENTE de hacer
+const FASES = ['Pendiente de valorar', 'Pendiente de campo', 'Pendiente de gabinete', 'Pendiente de facturar'];
+const FASES_CORTAS = ['Valorar', 'Campo', 'Gabinete', 'Facturar'];
+// Orden de la lista: primero lo más urgente (campo, gabinete), luego valorar y abajo lo pendiente de facturar
+const ORDEN_FASE = [2, 0, 1, 3]; // posición en la lista de cada fase (índice = fase)
 const esObra = t => t.tipo === 'obra';
 const etiqueta = t => esObra(t) ? 'Obra' : FASES_CORTAS[t.fase];
 const claseFase = t => esObra(t) ? 'f4' : 'f' + t.fase;
@@ -450,7 +459,7 @@ function crearTrabajo(texto) {
 }
 function limpio(t) {
   return { id: t.id, titulo: t.titulo, tituloManual: !!t.tituloManual, fase: t.fase, tipo: t.tipo || null, tipoManual: !!t.tipoManual, archivado: !!t.archivado,
-    creado: t.creado, actualizado: t.actualizado, actividad: t.actividad, campos: t.campos, notas: t.notas };
+    creado: t.creado, actualizado: t.actualizado, actividad: t.actividad, orden: typeof t.orden === 'number' ? t.orden : null, campos: t.campos, notas: t.notas };
 }
 
 /* ================== Interfaz: lista ================== */
@@ -479,7 +488,8 @@ function htmlNota(t, n) {
     ${n.aviso && n.aviso.fecha ? `<button type="button" class="nota-btn cal" data-acc="cal" data-n="${n.id}" aria-label="Añadir a Google Calendar">${ICO_CAL}</button>` : ''}
   </div>`;
 }
-function htmlTrabajo(t, mostrarArch) {
+const ICO_ASA = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5.5" r="1.8"/><circle cx="15" cy="5.5" r="1.8"/><circle cx="9" cy="12" r="1.8"/><circle cx="15" cy="12" r="1.8"/><circle cx="9" cy="18.5" r="1.8"/><circle cx="15" cy="18.5" r="1.8"/></svg>';
+function htmlTrabajo(t, mostrarArch, arrastrable) {
   const abierto = t.id === abiertoId;
   const obra = esObra(t);
   const nv = notasVivas(t).slice().reverse(); // la última nota arriba
@@ -488,12 +498,12 @@ function htmlTrabajo(t, mostrarArch) {
   const meta = [cliente, fCorta(t.creado)].filter(Boolean).join(' · ');
   // Que quepa en dos líneas: si el título es largo se recorta y la etiqueta y la fecha siempre se ven
   let tit = t.titulo;
-  const hueco = Math.max(16, Math.round(54 - etiqueta(t).length * 1.1 - meta.length * 0.85));
+  const hueco = Math.max(16, Math.round(54 - etiqueta(t).length * 1.1 - meta.length * 0.85 - (arrastrable ? 4 : 0)));
   if (tit.length > hueco) tit = tit.slice(0, hueco - 1).trim() + '…';
-  let h = `<article class="trabajo${abierto ? ' abierto' : ''}" data-id="${t.id}">
-    <button class="cab" type="button" data-acc="abrir" aria-expanded="${abierto}">
+  let h = `<article class="trabajo${abierto ? ' abierto' : ''}" data-id="${t.id}" data-grupo="${grupo(t)}">
+    <div class="cabfila"><button class="cab" type="button" data-acc="abrir" aria-expanded="${abierto}">
       <span class="linea"><span class="tit">${esc(tit)}</span><span class="etq ${claseFase(t)}">${esc(etiqueta(t))}</span>${mostrarArch && t.archivado ? '<span class="etq arch">Archivado</span>' : ''}<span class="meta">${esc(meta)}</span>${t.pendiente && conf.url ? ' <span class="punto-pend" title="Pendiente de subir"></span>' : ''}</span>
-    </button>`;
+    </button>${arrastrable ? `<button class="asa" type="button" data-asa aria-label="Arrastrar para cambiar el orden" title="Arrastra para cambiar el orden">${ICO_ASA}</button>` : ''}</div>`;
   if (!abierto) return h + '</article>';
   const pendientesN = obra ? nv.filter(n => !n.hecha) : nv;
   const hechas = obra ? nv.filter(n => n.hecha) : [];
@@ -531,16 +541,24 @@ function coincide(t, palabras) {
   const todo = norm([t.titulo, etiqueta(t), esObra(t) ? 'obra' : FASES[t.fase], ...t.campos.map(c => c.nombre + ' ' + c.valor), ...notasVivas(t).map(n => n.texto)].join('\n'));
   return palabras.every(p => todo.includes(p));
 }
-const ordenar = arr => arr.sort((a, b) => a.creado - b.creado);
+// Orden: por fase (campo, gabinete, valorar, facturar) y dentro de cada fase por fecha de creación,
+// salvo que el usuario lo haya movido arrastrando (campo «orden», en la misma escala que la fecha).
+const grupo = t => esObra(t) ? 'obra' : 'f' + t.fase;
+const claveOrden = t => typeof t.orden === 'number' ? t.orden : t.creado;
+const rangoFase = t => esObra(t) ? 9 : ORDEN_FASE[t.fase];
+const ordenar = arr => arr.sort((a, b) => rangoFase(a) - rangoFase(b) || claveOrden(a) - claveOrden(b) || a.creado - b.creado);
 const ordenarArch = arr => arr.sort((a, b) => (b.actualizado || 0) - (a.actualizado || 0));
 
+let arrastre = null, renderAplazado = false;
 function render() {
+  if (arrastre) { renderAplazado = true; return; } // no rehacer la lista a mitad de un arrastre
+  renderAplazado = false;
   const palabras = norm($('#q').value).split(/[\s,.;:]+/).filter(p => p.length > 1);
   const buscando = palabras.length > 0;
   const lista = db.trabajos.filter(t => buscando ? coincide(t, palabras) : !t.archivado);
   const trab = ordenar(lista.filter(t => !esObra(t))), obras = ordenar(lista.filter(esObra));
-  let h = trab.map(t => htmlTrabajo(t, buscando)).join('');
-  if (obras.length) h += (trab.length ? '<h2 class="sep">Obras</h2>' : '') + obras.map(t => htmlTrabajo(t, buscando)).join('');
+  let h = trab.map(t => htmlTrabajo(t, buscando, !buscando)).join('');
+  if (obras.length) h += (trab.length ? '<h2 class="sep">Obras</h2>' : '') + obras.map(t => htmlTrabajo(t, buscando, !buscando)).join('');
   $('#lista').innerHTML = h || `<p class="vacio-lista">${buscando ? 'Nada coincide con la búsqueda.' : 'No hay trabajos activos.<br>Pulsa <b>Nuevo trabajo u obra</b> y dicta la primera nota.'}</p>`;
   const arch = ordenarArch(db.trabajos.filter(t => t.archivado));
   $('#listaArch').innerHTML = arch.length ? arch.map(t => htmlTrabajo(t, false)).join('') : '<p class="vacio-lista">No hay trabajos archivados.</p>';
@@ -632,7 +650,8 @@ document.addEventListener('click', e => {
     if (f === 4) t.tipo = 'obra'; else { t.tipo = null; t.fase = f; }
     t.tipoManual = true; t.actividad = ahora(); marcar(t);
     if (!guardarSeguro()) { Object.assign(t, antes); return render(); }
-    render(); toast(f === 4 ? 'Marcado como obra' : 'Fase: ' + FASES[f], 'okk'); sincronizar();
+    render(); verTrabajo(t.id); // la tarjeta cambia de sitio en la lista: seguirla
+    toast(f === 4 ? 'Marcado como obra' : 'Fase: ' + FASES[f], 'okk'); sincronizar();
     return;
   }
   if (acc === 'verHechas') { verHechas.has(t.id) ? verHechas.delete(t.id) : verHechas.add(t.id); render(); return; }
@@ -660,6 +679,89 @@ document.addEventListener('click', e => {
 function guardarSeguro() {
   try { guardarLocal(); return true; }
   catch (e) { toast('⚠ NO se ha guardado: ' + e.message, 'err'); return false; }
+}
+
+/* ================== Ordenar arrastrando (asa ⋮⋮ de cada tarjeta) ================== */
+// Solo se puede mover dentro de su grupo (misma fase, u obras); fuera del grupo se queda en el extremo.
+document.addEventListener('contextmenu', e => { if (e.target.closest('[data-asa]')) e.preventDefault(); });
+document.addEventListener('pointerdown', e => {
+  const asa = e.target.closest('[data-asa]');
+  if (!asa || arrastre || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  const art = asa.closest('.trabajo');
+  const hermanos = [...art.parentNode.querySelectorAll(':scope > .trabajo')].filter(x => x.dataset.grupo === art.dataset.grupo);
+  e.preventDefault();
+  try { asa.setPointerCapture(e.pointerId); } catch (er) {}
+  const sy = window.scrollY;
+  const otros = hermanos.filter(x => x !== art);
+  const r = art.getBoundingClientRect();
+  arrastre = {
+    id: art.dataset.id, asa, art, otros, ptr: e.pointerId,
+    ini: hermanos.indexOf(art), dest: hermanos.indexOf(art), movido: false,
+    yIni: e.clientY + sy, y: e.clientY, alto: r.height + 6, centro: r.top + sy + r.height / 2,
+    centros: otros.map(x => { const q = x.getBoundingClientRect(); return q.top + sy + q.height / 2; })
+  };
+});
+function moverArrastre() {
+  const a = arrastre; if (!a) return;
+  const dy = a.y + window.scrollY - a.yIni;
+  if (!a.movido && Math.abs(dy) < 6) return;
+  if (!a.movido) { a.movido = true; a.art.classList.add('arrastrando'); document.body.classList.add('arrastrando'); }
+  const c = a.centro + dy;
+  let k = 0; while (k < a.centros.length && a.centros[k] < c) k++;
+  a.dest = k;
+  a.art.style.transform = `translateY(${dy}px)`;
+  a.otros.forEach((x, j) => {
+    const d = (j < a.ini && j >= k) ? a.alto : (j >= a.ini && j < k) ? -a.alto : 0;
+    x.style.transform = d ? `translateY(${d}px)` : '';
+  });
+}
+function pasoArrastre() {
+  const a = arrastre; if (!a) return;
+  const borde = 80, h = window.innerHeight;
+  let v = 0;
+  if (a.y < borde) v = -Math.ceil((borde - a.y) / 5);
+  else if (a.y > h - borde) v = Math.ceil((a.y - (h - borde)) / 5);
+  if (v) { window.scrollBy(0, v); moverArrastre(); }
+  a.raf = requestAnimationFrame(pasoArrastre);
+}
+document.addEventListener('pointermove', e => {
+  const a = arrastre; if (!a || e.pointerId !== a.ptr) return;
+  e.preventDefault();
+  a.y = e.clientY;
+  moverArrastre();
+  if (a.movido && !a.raf) a.raf = requestAnimationFrame(pasoArrastre);
+}, { passive: false });
+function finArrastre(e, cancelar) {
+  const a = arrastre; if (!a || e.pointerId !== a.ptr) return;
+  cancelAnimationFrame(a.raf);
+  arrastre = null;
+  document.body.classList.remove('arrastrando');
+  a.art.classList.remove('arrastrando');
+  [a.art, ...a.otros].forEach(x => { x.style.transform = ''; });
+  if (!a.movido) { if (!cancelar) toast('Mantén pulsado ⋮⋮ y arrastra arriba o abajo para cambiar el orden', '', null, 3500); if (renderAplazado) render(); return; }
+  if (cancelar || a.dest === a.ini) { render(); return; }
+  colocar(a.id, a.otros.map(x => x.dataset.id), a.dest);
+}
+document.addEventListener('pointerup', e => finArrastre(e, false));
+document.addEventListener('pointercancel', e => finArrastre(e, true));
+/** Coloca el trabajo «id» en la posición «k» entre los demás de su grupo (ids en su orden actual). */
+function colocar(id, idsOtros, k) {
+  const t = porId(id); if (!t) return render();
+  const otros = idsOtros.map(porId).filter(Boolean);
+  const prev = otros[k - 1], next = otros[k];
+  let nueva;
+  if (prev && next) nueva = (claveOrden(prev) + claveOrden(next)) / 2;
+  else if (prev) nueva = claveOrden(prev) + 60000;
+  else nueva = claveOrden(next) - 60000;
+  const copia = JSON.stringify(db);
+  if ((prev && !(nueva > claveOrden(prev))) || (next && !(nueva < claveOrden(next)))) {
+    // Claves repetidas: se renumera todo el grupo respetando el orden nuevo
+    const fila = otros.slice(); fila.splice(k, 0, t);
+    const base = Math.min(...fila.map(claveOrden));
+    fila.forEach((x, i) => { const v = base + i * 60000; if (x.orden !== v) { x.orden = v; marcar(x); } });
+  } else { t.orden = nueva; marcar(t); }
+  if (!guardarSeguro()) { db = JSON.parse(copia); return render(); }
+  render(); sincronizar();
 }
 
 $('#btnNuevo').addEventListener('click', () => abrirEditor({ modo: 'nuevo' }, true));
@@ -964,7 +1066,7 @@ function fusionar(remotos) {
     r.notas.forEach(rn => { remotas.add(rn.id); const ln = mapa.get(rn.id); if (!ln || marca(rn) > marca(ln)) mapa.set(rn.id, rn); });
     l.notas = Array.from(mapa.values()).sort((a, b) => a.creada - b.creada);
     if (!l.pendiente && (r.actualizado || 0) >= (l.actualizado || 0)) {
-      ['titulo', 'tituloManual', 'fase', 'tipo', 'tipoManual', 'archivado', 'campos', 'actualizado', 'actividad', 'creado'].forEach(k => { if (r[k] !== undefined) l[k] = r[k]; });
+      ['titulo', 'tituloManual', 'fase', 'tipo', 'tipoManual', 'archivado', 'campos', 'actualizado', 'actividad', 'creado', 'orden'].forEach(k => { if (r[k] !== undefined) l[k] = r[k]; });
       asegurarFijos(l);
     }
     if (l.notas.some(n => !remotas.has(n.id))) l.pendiente = true;
